@@ -6,7 +6,6 @@ Created on Sun Jun 27 19:24:38 2021
 """
 
 import streamlit as st
-import sys
 import numpy as np
 import pickle
 from tensorflow.keras.models import load_model
