@@ -16,8 +16,8 @@ nltk.download('stopwords')
 from htbuilder import HtmlElement, div, ul, li, br, hr, a, p, img, styles, classes, fonts
 from htbuilder.units import percent, px
 from htbuilder.funcs import rgba, rgb
-
-
+import time
+from stqdm import stqdm
 
 #open
 with open('Chars.pkl','rb') as f:
@@ -29,22 +29,10 @@ with open('Xdata.pkl','rb') as f2:
 #vocablength
 vocab_len = 37
 
-filename = "model_weights_final.hdf5"
+filename = "Model/model_weights_final.hdf5"
 md = load_model(filename)
 
-def Predict(pattern,ran):
-    for i in range(ran):
-        x = np.reshape(pattern, (1, len(pattern), 1))
-        x = x / float(vocab_len)
-        prediction = md.predict(x, verbose=0)
-        index = np.argmax(prediction)
-        result = num_to_char[index]
 
-        #sys.stdout.write(result)
-        st.write(result,end='')
-
-        pattern.append(index)
-        pattern = pattern[1:len(pattern)]
 
 def tokenize_words(input):
     # lowercase everything to standardize it
@@ -69,9 +57,22 @@ st.title('Automatic Text Generation')
 nav = st.sidebar.radio("Menu",["Home","Generate text"])
 
 
+
+st.progress_bar = st.empty()
+
+
+
+
 if nav == "Home":
-    st.image("Picture1.jpg",width = 500,use_column_width = True,caption = 'Work Flow')
+    st.image("Images/work.jpg",width = 500,use_column_width = True,caption = 'Work Flow')
     st.write("This is  an automatic text generator which is trained using LSTM architecture. The model is trained on the book named ' The Yellow Wallpaper ' by Charlotte Perkins Gilman. The book is selected from Project Gutenberg, which is a collection of more than 60k ebooks. So at first the model will take an input sentence from the user and then the user have to specify the maximum number of characters to predict, then this information will be fetched to the model and  output will be generated.")
+    st.subheader("Python Libraries Used")
+    st.markdown("*  Numpy")
+    st.markdown("*  Tensorflow")
+    st.markdown("*  Nltk")
+    st.markdown("*  Pickle")
+    st.markdown("*  Streamlit")
+    st.markdown("*  Htbuilder")
     
 if nav == "Generate text":
     st.header("Generate Text")
@@ -83,9 +84,27 @@ if nav == "Generate text":
         
     val = st.number_input("Enter the range of characters:",0,1000,step = 100)
     
+    
+    
     if st.button("Generate"):
-        Predict(inp,val)
+        #progress = st.progress(0)
+        output_str = ""
+        for i in stqdm(range(val)):
+            time.sleep(0.5)
+            
+            x = np.reshape(inp, (1, len(inp), 1))
+            x = x / float(vocab_len)
+            prediction = md.predict(x, verbose=0)
+            index = np.argmax(prediction)
+            result = num_to_char[index]
+            output_str  += result
+                
 
+            inp.append(index)
+            inp = inp[1:len(inp)]
+        st.write(output_str, end = '')
+        st_title = st.empty()
+        st_progress_bar = st.empty()
 
 
 def layout(*args):
